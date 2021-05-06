@@ -5,7 +5,7 @@ module SupportRotaToProductive
     end
 
     def run
-      #delete_all_future_bookings
+      delete_all_future_bookings
       create_bookings_from_support_rotations
     end
 
@@ -17,7 +17,7 @@ module SupportRotaToProductive
 
     def create_bookings_from_support_rotations
       SupportRotation.all.each do |rotation|
-        booking = BreatheToProductive::Booking.new(rotation, @dry_run)
+        booking = SupportRotaToProductive::Booking.new(rotation, @dry_run)
         booking.save
       end
     end
