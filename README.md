@@ -20,6 +20,17 @@ bundle install
 
 Copy `.env.example` to a file called `.env` and fill in the variables with some real info.
 
+- `PRODUCTIVE_API_KEY` a Productive API with read/write permissions
+- `PRODUCTIVE_ACCOUNT_ID` the account ID of the Productive organisation, you can
+find this in the url of every Productive request
+- `SUPPORT_PROJECT_ID` the ID of the project to which support time is added, this
+project will need to exist
+- `SUPPORT_SERVICE_ID` the ID of the service to which support time is added, this
+service will need to exist. Unfortunately there is no simple way to get this,
+you have to call the API `
+https://api.productive.io/api/v2/services?&filter[project_id]=SUPPORT_PROJECT_ID`
+and locate the relevant ID.
+
 ### Run the task
 
 This will do the following:

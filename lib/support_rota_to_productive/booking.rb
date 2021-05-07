@@ -1,7 +1,7 @@
 module SupportRotaToProductive
   class Booking
-    SUPPORT_SERVICE_ID = 882645
-    SUPPORT_PROJECT_ID = 126092
+    SUPPORT_SERVICE_ID = ENV.fetch("SUPPORT_SERVICE_ID")
+    SUPPORT_PROJECT_ID = ENV.fetch("SUPPORT_PROJECT_ID")
 
     LOGGER = Logger.new($stdout)
 
