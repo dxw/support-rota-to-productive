@@ -6,16 +6,8 @@ module ServiceStubs
   end
 
   def stub_productive_service(id)
-    url = "https://api.productive.io/api/v2/services/#{id}"
-    body = JSON.parse(File.read(File.join("spec", "fixtures", "productive", "event.json"))).to_json
-    stub_request(:get, url)
-      .to_return(
-        status: 200,
-        body: body,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
+    stub_request(:get, "https://api.productive.io/api/v2/services/#{id}")
+      .to_return(status: 200, body: "", headers: {})
   end
 
   def stub_booking_create
