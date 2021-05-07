@@ -34,7 +34,7 @@ RSpec.describe SupportRotaToProductive::Import do
 
     it "logs the creation of the booking" do
       expect(SupportRotaToProductive::Booking::LOGGER).to have_received(:info).with(
-        "Creating support shift for joe@dxw.com from 2021-03-01 - 2021-03-01"
+        "Creating support shift for joe@dxw.com on 2021-03-01"
       )
     end
 
@@ -47,7 +47,7 @@ RSpec.describe SupportRotaToProductive::Import do
     it "logs the deletion of each booking" do
       existing_bookings.each do |booking|
         expect(SupportRotaToProductive::Booking::LOGGER).to have_received(:info).with(
-          "Deleting support shift for #{booking.person.email} from #{booking.started_on} - #{booking.ended_on}"
+          "Deleting support shift for #{booking.person.email} on #{booking.started_on}"
         )
       end
     end
@@ -61,7 +61,7 @@ RSpec.describe SupportRotaToProductive::Import do
 
       it "logs the creation of the booking" do
         expect(SupportRotaToProductive::Booking::LOGGER).to have_received(:info).with(
-          "Creating support shift for joe@dxw.com from 2021-03-01 - 2021-03-01"
+          "Creating support shift for joe@dxw.com on 2021-03-01"
         )
       end
 
@@ -74,7 +74,7 @@ RSpec.describe SupportRotaToProductive::Import do
       it "logs the deletion of each booking" do
         existing_bookings.each do |booking|
           expect(SupportRotaToProductive::Booking::LOGGER).to have_received(:info).with(
-            "Deleting support shift for #{booking.person.email} from #{booking.started_on} - #{booking.ended_on}"
+            "Deleting support shift for #{booking.person.email} on #{booking.started_on}"
           )
         end
       end

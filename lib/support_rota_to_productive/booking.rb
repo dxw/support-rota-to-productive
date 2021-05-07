@@ -28,7 +28,7 @@ module SupportRotaToProductive
         future_bookings = Productive::Booking.where(project_id: SUPPORT_PROJECT_ID, after: Date.today).all
 
         future_bookings.each do |booking|
-          LOGGER.info("Deleting support shift for #{booking.person.email} from #{booking.started_on} - #{booking.ended_on}")
+          LOGGER.info("Deleting support shift for #{booking.person.email} on #{booking.started_on}")
           booking.destroy unless dry_run
         end
       end

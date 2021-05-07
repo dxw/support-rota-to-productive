@@ -26,7 +26,7 @@ RSpec.describe SupportRotaToProductive::Booking do
       it "logs the creation of a booking" do
         subject.save
 
-        expect(described_class::LOGGER).to have_received(:info).with("Creating support shift for #{employee.email} from #{support_rotation.date} - #{support_rotation.date}")
+        expect(described_class::LOGGER).to have_received(:info).with("Creating support shift for #{employee.email} on #{support_rotation.date}")
       end
 
       context "when `dry_run` is true" do
@@ -41,7 +41,7 @@ RSpec.describe SupportRotaToProductive::Booking do
         it "logs the creation of a booking" do
           subject.save
 
-          expect(described_class::LOGGER).to have_received(:info).with("Creating support shift for #{employee.email} from #{support_rotation.date} - #{support_rotation.date}")
+          expect(described_class::LOGGER).to have_received(:info).with("Creating support shift for #{employee.email} on #{support_rotation.date}")
         end
       end
     end
