@@ -5,8 +5,10 @@ RSpec.describe SupportRotaToProductive::Import do
   subject { described_class.new(dry_run: dry_run) }
 
   let!(:service_request) { stub_productive_service(SupportRotaToProductive::Booking::SUPPORT_SERVICE_ID) }
-  let!(:support_rota_request) { stub_support_rota_service }
-  let!(:employee) { FactoryBot.create(:employee, email: "joe@dxw.com") }
+  let!(:support_rota_request_dev) { stub_support_rota_service("dev") }
+  let!(:support_rota_request_ops) { stub_support_rota_service("ops") }
+  let!(:dev_employee) { FactoryBot.create(:employee, email: "joe@dxw.com") }
+  let!(:ops_employee) { FactoryBot.create(:employee, email: "petra@dxw.com") }
 
   before do
     allow(SupportRotaToProductive::Booking::LOGGER).to receive(:info)
@@ -15,13 +17,16 @@ RSpec.describe SupportRotaToProductive::Import do
 
   describe "#run" do
     let(:existing_bookings) { create_list(:booking, 7) }
-    let(:support_rotations) { create_list(:support_rotation, 5) }
-
-    let!(:booking_creation_stub) { stub_booking_create }
 
     let!(:booking_deletion_stubs) do
       existing_bookings.map do |booking|
         stub_booking_delete(booking.id)
+      end
+    end
+
+    let!(:booking_creation_stubs) do
+      [dev_employee, ops_employee].map do |employee|
+        stub_booking_create(employee: employee)
       end
     end
 
@@ -30,7 +35,9 @@ RSpec.describe SupportRotaToProductive::Import do
     end
 
     it "creates a booking for the support rotation" do
-      expect(booking_creation_stub).to have_been_requested
+      booking_creation_stubs.each do |stub|
+        expect(stub).to have_been_requested
+      end
     end
 
     it "logs the creation of the booking" do
@@ -57,7 +64,9 @@ RSpec.describe SupportRotaToProductive::Import do
       let(:dry_run) { true }
 
       it "does not create bookings for every support rotation" do
-        expect(booking_creation_stub).to_not have_been_requested
+        booking_creation_stubs.each do |stub|
+          expect(stub).to_not have_been_requested
+        end
       end
 
       it "logs the creation of the booking" do

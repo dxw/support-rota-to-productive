@@ -23,7 +23,7 @@ RSpec.describe SupportRotaToProductive::Booking do
       let!(:project_assignment_request) {
         stub_project_assignment_for_employee_and_project(employee.productive_id, SupportRotaToProductive::Booking::SUPPORT_PROJECT_ID)
       }
-      let!(:booking_request) { stub_booking_create }
+      let!(:booking_request) { stub_booking_create(employee: employee) }
 
       it "creates a booking in productive" do
         subject.save
