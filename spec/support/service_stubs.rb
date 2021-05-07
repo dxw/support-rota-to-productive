@@ -19,6 +19,26 @@ module ServiceStubs
     stub_request(:delete, "https://api.productive.io/api/v2/bookings/#{id}")
       .to_return(status: 204, body: "", headers: {})
   end
+
+  def stub_project_assignment_create
+    stub_request(:post, "https://api.productive.io/api/v2/project_assignments")
+      .to_return(status: 200, body: "", headers: {})
+  end
+
+  def stub_project_assignment_for_employee_and_project(person_id, project_id)
+    stub_request(:get, "https://api.productive.io/api/v2/project_assignments?filter[person_id]=#{person_id}&filter[project_id]=#{project_id}")
+      .to_return(status: 200, body: "", headers: {})
+  end
+
+  def stub_person_with_id(person_id)
+    stub_request(:get, "https://api.productive.io/api/v2/people/#{person_id}")
+      .to_return(status: 200, body: "", headers: {})
+  end
+
+  def stub_people
+    stub_request(:get, "https://api.productive.io/api/v2/people")
+      .to_return(status: 200, body: "", headers: {})
+  end
 end
 
 RSpec.configure do |config|

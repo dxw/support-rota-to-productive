@@ -10,6 +10,7 @@ RSpec.describe SupportRotaToProductive::Import do
 
   before do
     allow(SupportRotaToProductive::Booking::LOGGER).to receive(:info)
+    allow_any_instance_of(SupportRotaToProductive::Booking).to receive(:employee_assigned_to_support_project?).and_return(true)
   end
 
   describe "#run" do

@@ -4,6 +4,7 @@ RSpec.describe SupportRotaToProductive::Booking do
   let(:employee) { create(:employee, email: "foo@example.com") }
   let(:support_rotation) { create(:support_rotation, employee: employee) }
   let(:dry_run) { false }
+  let!(:people_request) { stub_people }
 
   subject { described_class.new(support_rotation, dry_run) }
 
@@ -12,9 +13,17 @@ RSpec.describe SupportRotaToProductive::Booking do
   end
 
   describe "#save" do
+
+    before do
+      allow(subject).to receive(:employee_assigned_to_support_project?).and_return(true)
+    end
+
     let!(:service_request) { stub_productive_service(SupportRotaToProductive::Booking::SUPPORT_SERVICE_ID) }
 
     context "when a person exists in Productive" do
+      let!(:project_assignment_request) {
+        stub_project_assignment_for_employee_and_project(employee.productive_id, SupportRotaToProductive::Booking::SUPPORT_PROJECT_ID)
+      }
       let!(:booking_request) { stub_booking_create }
 
       it "creates a booking in productive" do
@@ -27,6 +36,18 @@ RSpec.describe SupportRotaToProductive::Booking do
         subject.save
 
         expect(described_class::LOGGER).to have_received(:info).with("Creating support shift for #{employee.email} on #{support_rotation.date}")
+      end
+
+      context "but they are not assigned to the support project" do
+        let!(:project_assignment_request) { stub_project_assignment_create }
+
+        it "assigns the employee to the support project" do
+          allow(subject).to receive(:employee_assigned_to_support_project?).and_return(false)
+
+          subject.save
+
+          expect(project_assignment_request).to have_been_requested
+        end
       end
 
       context "when `dry_run` is true" do
