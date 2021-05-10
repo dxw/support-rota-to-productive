@@ -6,7 +6,7 @@ RSpec.describe SupportRotaToProductive::Import do
 
   let!(:service_request) { stub_productive_service(SupportRotaToProductive::Booking::SUPPORT_SERVICE_ID) }
   let!(:support_rota_request) { stub_support_rota_service }
-  let!(:employee) { FactoryBot.create(:employee, email: 'joe@dxw.com') }
+  let!(:employee) { FactoryBot.create(:employee, email: "joe@dxw.com") }
 
   before do
     allow(SupportRotaToProductive::Booking::LOGGER).to receive(:info)
