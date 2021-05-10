@@ -1,0 +1,22 @@
+name: Build
+env:
+  PRODUCTIVE_API_KEY: "some-fake-api-key"
+  PRODUCTIVE_ACCOUNT_ID: "1234"
+  SUPPORT_PROJECT_ID: "12345"
+  SUPPORT_SERVICE_ID: "67890"
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Build and test with Rake
+        run: |
+          bundle exec rake

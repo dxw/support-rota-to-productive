@@ -13,7 +13,6 @@ RSpec.describe SupportRotaToProductive::Booking do
   end
 
   describe "#save" do
-
     before do
       allow(subject).to receive(:employee_assigned_to_support_project?).and_return(true)
     end

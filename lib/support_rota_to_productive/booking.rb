@@ -45,7 +45,7 @@ module SupportRotaToProductive
         unless employee_assigned_to_support_project?(employee)
           assignment = assign_employee_to_support_project(employee)
           if assignment.save
-            LOGGER.info("#{employee.email} assigned to Support project id: #{SUPPORT_PROJECT_ID}" )
+            LOGGER.info("#{employee.email} assigned to Support project id: #{SUPPORT_PROJECT_ID}")
           end
         end
 
