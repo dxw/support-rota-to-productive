@@ -1,7 +1,7 @@
 module SupportRotaToProductive
   class SupportRotation
     include ActiveModel::Model
-    attr_accessor :date, :employee
+    attr_accessor :date, :employee, :productive_booking
 
     def eql?(other)
       employee.email == other.employee.email &&
