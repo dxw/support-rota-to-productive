@@ -18,4 +18,6 @@ require "support_rota_to_productive/support_rota_client"
 require "productive/booking"
 
 module SupportRotaToProductive
+  SUPPORT_PROJECT_ID = ENV.fetch("SUPPORT_PROJECT_ID")
+  SUPPORT_SERVICE_ID = ENV.fetch("SUPPORT_SERVICE_ID")
 end

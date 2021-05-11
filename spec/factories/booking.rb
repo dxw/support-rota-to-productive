@@ -99,7 +99,7 @@ FactoryBot.define do
       @json["data"] << evaluator.json
       @json["included"] << evaluator.included
 
-      url = "https://api.productive.io/api/v2/bookings?filter%5Bafter%5D=#{Date.today}&filter%5Bproject_id%5D=#{SupportRotaToProductive::SendToProductive::SUPPORT_PROJECT_ID}"
+      url = "https://api.productive.io/api/v2/bookings?filter%5Bafter%5D=#{Date.today}&filter%5Bproject_id%5D=#{SupportRotaToProductive::SUPPORT_PROJECT_ID}"
       WebMock.stub_request(:get, url)
         .to_return(
           status: 200,

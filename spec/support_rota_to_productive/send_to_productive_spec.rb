@@ -17,11 +17,11 @@ RSpec.describe SupportRotaToProductive::SendToProductive do
       allow(subject).to receive(:employee_assigned_to_support_project?).and_return(true)
     end
 
-    let!(:service_request) { stub_productive_service(SupportRotaToProductive::SendToProductive::SUPPORT_SERVICE_ID) }
+    let!(:service_request) { stub_productive_service(SupportRotaToProductive::SUPPORT_SERVICE_ID) }
 
     context "when a person exists in Productive" do
       let!(:project_assignment_request) {
-        stub_project_assignment_for_employee_and_project(employee.productive_id, SupportRotaToProductive::SendToProductive::SUPPORT_PROJECT_ID)
+        stub_project_assignment_for_employee_and_project(employee.productive_id, SupportRotaToProductive::SUPPORT_PROJECT_ID)
       }
       let!(:booking_request) { stub_booking_create(employee: employee) }
 

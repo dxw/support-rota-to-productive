@@ -4,7 +4,7 @@ RSpec.describe SupportRotaToProductive::Import do
   let(:dry_run) { false }
   subject { described_class.new(dry_run: dry_run) }
 
-  let!(:service_request) { stub_productive_service(SupportRotaToProductive::SendToProductive::SUPPORT_SERVICE_ID) }
+  let!(:service_request) { stub_productive_service(SupportRotaToProductive::SUPPORT_SERVICE_ID) }
   let!(:support_rota_request_dev) { stub_support_rota_service("dev") }
   let!(:support_rota_request_ops) { stub_support_rota_service("ops") }
   let!(:dev_employee) { FactoryBot.create(:employee, email: "joe@dxw.com") }

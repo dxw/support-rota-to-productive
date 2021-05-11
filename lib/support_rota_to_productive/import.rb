@@ -16,7 +16,7 @@ module SupportRotaToProductive
     end
 
     def create_bookings_from_support_rotations
-      SupportRotation.all.each do |rotation|
+      SupportRotation.from_support_rota.each do |rotation|
         booking = SupportRotaToProductive::SendToProductive.new(rotation, @dry_run)
         booking.save
       end

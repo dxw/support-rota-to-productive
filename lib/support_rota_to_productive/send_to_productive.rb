@@ -1,8 +1,5 @@
 module SupportRotaToProductive
   class SendToProductive
-    SUPPORT_SERVICE_ID = ENV.fetch("SUPPORT_SERVICE_ID")
-    SUPPORT_PROJECT_ID = ENV.fetch("SUPPORT_PROJECT_ID")
-
     LOGGER = Logger.new($stdout)
 
     attr_reader :employee, :start_date, :end_date, :dry_run, :productive_person
@@ -25,7 +22,7 @@ module SupportRotaToProductive
 
     class << self
       def delete_all_future_bookings(dry_run)
-        future_bookings = Productive::Booking.where(project_id: SUPPORT_PROJECT_ID, after: Date.today).all
+        future_bookings = Productive::Booking.where(project_id: SupportRotaToProductive::SUPPORT_PROJECT_ID, after: Date.today).all
 
         future_bookings.each do |booking|
           LOGGER.info("Deleting support shift for #{booking.person.email} on #{booking.started_on}")
