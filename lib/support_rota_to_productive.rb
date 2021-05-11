@@ -20,4 +20,6 @@ require "productive/booking"
 module SupportRotaToProductive
   SUPPORT_PROJECT_ID = ENV.fetch("SUPPORT_PROJECT_ID")
   SUPPORT_SERVICE_ID = ENV.fetch("SUPPORT_SERVICE_ID")
+
+  LOGGER = Logger.new($stdout)
 end

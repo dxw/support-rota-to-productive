@@ -1,7 +1,5 @@
 module SupportRotaToProductive
   class SendToProductive
-    LOGGER = Logger.new($stdout)
-
     attr_reader :employee, :start_date, :end_date, :dry_run, :productive_person
 
     def initialize(support_rotation, dry_run)
@@ -20,17 +18,6 @@ module SupportRotaToProductive
       end
     end
 
-    class << self
-      def delete_all_future_bookings(dry_run)
-        future_bookings = Productive::Booking.where(project_id: SupportRotaToProductive::SUPPORT_PROJECT_ID, after: Date.today).all
-
-        future_bookings.each do |booking|
-          LOGGER.info("Deleting support shift for #{booking.person.email} on #{booking.started_on}")
-          booking.destroy unless dry_run
-        end
-      end
-    end
-
     private
 
     def employee_assigned_to_support_project?(employee)
@@ -42,7 +29,7 @@ module SupportRotaToProductive
         unless employee_assigned_to_support_project?(employee)
           assignment = assign_employee_to_support_project(employee)
           if assignment.save
-            LOGGER.info("#{employee.email} assigned to Support project id: #{SUPPORT_PROJECT_ID}")
+            SupportRotaToProductive::LOGGER.info("#{employee.email} assigned to Support project id: #{SUPPORT_PROJECT_ID}")
           end
         end
 
