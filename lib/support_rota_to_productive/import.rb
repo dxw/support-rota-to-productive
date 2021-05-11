@@ -12,12 +12,12 @@ module SupportRotaToProductive
     private
 
     def delete_all_future_bookings
-      Booking.delete_all_future_bookings(@dry_run)
+      SendToProductive.delete_all_future_bookings(@dry_run)
     end
 
     def create_bookings_from_support_rotations
       SupportRotation.all.each do |rotation|
-        booking = SupportRotaToProductive::Booking.new(rotation, @dry_run)
+        booking = SupportRotaToProductive::SendToProductive.new(rotation, @dry_run)
         booking.save
       end
     end

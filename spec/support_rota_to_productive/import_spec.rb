@@ -4,15 +4,15 @@ RSpec.describe SupportRotaToProductive::Import do
   let(:dry_run) { false }
   subject { described_class.new(dry_run: dry_run) }
 
-  let!(:service_request) { stub_productive_service(SupportRotaToProductive::Booking::SUPPORT_SERVICE_ID) }
+  let!(:service_request) { stub_productive_service(SupportRotaToProductive::SendToProductive::SUPPORT_SERVICE_ID) }
   let!(:support_rota_request_dev) { stub_support_rota_service("dev") }
   let!(:support_rota_request_ops) { stub_support_rota_service("ops") }
   let!(:dev_employee) { FactoryBot.create(:employee, email: "joe@dxw.com") }
   let!(:ops_employee) { FactoryBot.create(:employee, email: "petra@dxw.com") }
 
   before do
-    allow(SupportRotaToProductive::Booking::LOGGER).to receive(:info)
-    allow_any_instance_of(SupportRotaToProductive::Booking).to receive(:employee_assigned_to_support_project?).and_return(true)
+    allow(SupportRotaToProductive::SendToProductive::LOGGER).to receive(:info)
+    allow_any_instance_of(SupportRotaToProductive::SendToProductive).to receive(:employee_assigned_to_support_project?).and_return(true)
   end
 
   describe "#run" do
@@ -41,7 +41,7 @@ RSpec.describe SupportRotaToProductive::Import do
     end
 
     it "logs the creation of the booking" do
-      expect(SupportRotaToProductive::Booking::LOGGER).to have_received(:info).with(
+      expect(SupportRotaToProductive::SendToProductive::LOGGER).to have_received(:info).with(
         "Creating support shift for joe@dxw.com on 2021-03-01"
       )
     end
@@ -54,7 +54,7 @@ RSpec.describe SupportRotaToProductive::Import do
 
     it "logs the deletion of each booking" do
       existing_bookings.each do |booking|
-        expect(SupportRotaToProductive::Booking::LOGGER).to have_received(:info).with(
+        expect(SupportRotaToProductive::SendToProductive::LOGGER).to have_received(:info).with(
           "Deleting support shift for #{booking.person.email} on #{booking.started_on}"
         )
       end
@@ -70,7 +70,7 @@ RSpec.describe SupportRotaToProductive::Import do
       end
 
       it "logs the creation of the booking" do
-        expect(SupportRotaToProductive::Booking::LOGGER).to have_received(:info).with(
+        expect(SupportRotaToProductive::SendToProductive::LOGGER).to have_received(:info).with(
           "Creating support shift for joe@dxw.com on 2021-03-01"
         )
       end
@@ -83,7 +83,7 @@ RSpec.describe SupportRotaToProductive::Import do
 
       it "logs the deletion of each booking" do
         existing_bookings.each do |booking|
-          expect(SupportRotaToProductive::Booking::LOGGER).to have_received(:info).with(
+          expect(SupportRotaToProductive::SendToProductive::LOGGER).to have_received(:info).with(
             "Deleting support shift for #{booking.person.email} on #{booking.started_on}"
           )
         end

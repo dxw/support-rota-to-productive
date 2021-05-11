@@ -1,6 +1,6 @@
 require "spec_helper"
 
-RSpec.describe SupportRotaToProductive::Booking do
+RSpec.describe SupportRotaToProductive::SendToProductive do
   let(:employee) { create(:employee, email: "foo@example.com") }
   let(:support_rotation) { create(:support_rotation, employee: employee) }
   let(:dry_run) { false }
@@ -17,11 +17,11 @@ RSpec.describe SupportRotaToProductive::Booking do
       allow(subject).to receive(:employee_assigned_to_support_project?).and_return(true)
     end
 
-    let!(:service_request) { stub_productive_service(SupportRotaToProductive::Booking::SUPPORT_SERVICE_ID) }
+    let!(:service_request) { stub_productive_service(SupportRotaToProductive::SendToProductive::SUPPORT_SERVICE_ID) }
 
     context "when a person exists in Productive" do
       let!(:project_assignment_request) {
-        stub_project_assignment_for_employee_and_project(employee.productive_id, SupportRotaToProductive::Booking::SUPPORT_PROJECT_ID)
+        stub_project_assignment_for_employee_and_project(employee.productive_id, SupportRotaToProductive::SendToProductive::SUPPORT_PROJECT_ID)
       }
       let!(:booking_request) { stub_booking_create(employee: employee) }
 
