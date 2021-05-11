@@ -3,6 +3,16 @@ module SupportRotaToProductive
     include ActiveModel::Model
     attr_accessor :date, :employee
 
+    def eql?(other)
+      employee.email == other.employee.email &&
+        date == other.date
+    end
+    alias_method :==, :eql?
+
+    def hash
+      (date.hash ^ employee.email.hash)
+    end
+
     class << self
       def all
         result = []
