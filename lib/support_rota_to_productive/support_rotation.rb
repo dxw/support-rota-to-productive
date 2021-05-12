@@ -5,9 +5,10 @@ module SupportRotaToProductive
 
     class << self
       def all
-        json_endpoint = "/v2/dev/rota.json"
+        developers = JSON.parse(client.get(developer_endpoint))
+        ops = JSON.parse(client.get(ops_endpoint))
 
-        result = JSON.parse(client.get(json_endpoint))
+        result = developers + ops
 
         result.map do |support_day|
           new(values_for(support_day))
@@ -22,6 +23,14 @@ module SupportRotaToProductive
         values[:date] = support_day.fetch("date")
         values[:employee] = Employee.new(email: email)
         values
+      end
+
+      def developer_endpoint
+        "/v2/dev/rota.json"
+      end
+
+      def ops_endpoint
+        "/v2/ops/rota.json"
       end
 
       def client

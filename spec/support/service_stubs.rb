@@ -1,7 +1,7 @@
 module ServiceStubs
-  def stub_support_rota_service
-    body = JSON.parse(File.read(File.join("spec", "fixtures", "support_rota", "result.json"))).to_json
-    stub_request(:get, "https://dxw-support-rota.herokuapp.com/v2/dev/rota.json")
+  def stub_support_rota_service(type = "dev")
+    body = JSON.parse(File.read(File.join("spec", "fixtures", "support_rota", "#{type}.json"))).to_json
+    stub_request(:get, "https://dxw-support-rota.herokuapp.com/v2/#{type}/rota.json")
       .to_return(status: 200, body: body, headers: {})
   end
 
@@ -10,9 +10,32 @@ module ServiceStubs
       .to_return(status: 200, body: "", headers: {})
   end
 
-  def stub_booking_create
+  def stub_booking_create(employee:)
     stub_request(:post, "https://api.productive.io/api/v2/bookings")
-      .to_return(status: 200, body: "", headers: {})
+      .with(
+        body: {
+          "data" => {
+            "type" => "bookings",
+            "relationships" => {
+              "person" => {
+                "data" => {
+                  "type" => "people",
+                  "id" => employee.productive_id
+                }
+              },
+              "service" => {
+                "data" => nil
+              }
+            },
+            "attributes" => {
+              "started_on" => "2021-03-01",
+              "ended_on" => "2021-03-01",
+              "approved" => true,
+              "time" => 420
+            }
+          }
+        }.to_json
+      ).to_return(status: 200, body: "", headers: {})
   end
 
   def stub_booking_delete(id)

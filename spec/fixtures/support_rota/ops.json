@@ -1,0 +1,18 @@
+[
+  {
+    "date":"2021-03-01",
+    "role":"ops",
+    "person": {
+      "name":"Petra Ops",
+      "email":"petra@dxw.com"
+    }
+  },
+  {
+    "date":"2021-03-02",
+    "role":"ops",
+    "person": {
+      "name":"Pete Ops",
+      "email":"pete@dxw.com"
+    }
+  }
+]
