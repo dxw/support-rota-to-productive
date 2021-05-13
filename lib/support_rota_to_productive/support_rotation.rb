@@ -5,12 +5,11 @@ module SupportRotaToProductive
 
     class << self
       def all
-        developers = JSON.parse(client.get(developer_endpoint))
-        ops = JSON.parse(client.get(ops_endpoint))
+        result = []
+        result << JSON.parse(client.get(developer_endpoint)) if ENV["IMPORT_DEV_IN_HOURS"].eql?("true")
+        result << JSON.parse(client.get(ops_endpoint)) if ENV["IMPORT_OPS_IN_HOURS"].eql?("true")
 
-        result = developers + ops
-
-        result.map do |support_day|
+        result.flatten.map do |support_day|
           new(values_for(support_day))
         end
       end
