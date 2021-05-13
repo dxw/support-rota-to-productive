@@ -1,0 +1,52 @@
+name: Run
+env:
+  PRODUCTIVE_ACCOUNT_ID: ${{ secrets.PRODUCTIVE_ACCOUNT_ID }}
+  PRODUCTIVE_API_KEY: ${{ secrets.PRODUCTIVE_API_KEY }}
+  SUPPORT_PROJECT_ID: ${{ secrets.SUPPORT_PROJECT_ID }}
+  SUPPORT_SERVICE_ID: ${{ secrets.SUPPORT_SERVICE_ID }}
+  SUPPORT_ROTA_API_URI: https://dxw-support-rota.herokuapp.com
+  IMPORT_DEV_IN_HOURS: true
+  IMPORT_OPS_IN_HOURS: true
+
+# on:
+#   schedule:
+#     - cron: "0 3 * * 1-5"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: First try
+        id: first-try
+        run: |
+          bundle exec rake support_rota_to_productive:import:dry_run && bundle exec rake support_rota_to_productive:import:run
+        continue-on-error: true
+      - name: Second try
+        id: second-try
+        run: sleep 10 && bundle exec rake support_rota_to_productive:import:dry_run && bundle exec rake support_rota_to_productive:import:run
+        if: ${{ steps.first-try.outcome=='failure' }}
+        continue-on-error: true
+      - name: Third try
+        id: third-try
+        run: sleep 30 && bundle exec rake support_rota_to_productive:import:dry_run && bundle exec rake support_rota_to_productive:import:run
+        if: ${{ steps.third-try.outcome=='failure' }}
+        continue-on-error: true
+      - name: Fourth try
+        id: fourth-try
+        run: sleep 60 && bundle exec rake support_rota_to_productive:import:dry_run && bundle exec rake support_rota_to_productive:import:run
+        if: ${{ steps.third-try.outcome=='failure' }}
+        continue-on-error: true
+      - name: set the status
+        if: always()
+        run: |
+          if ${{ steps.first-try.outcome=='success' || steps.second-try.outcome=='success' || steps.third-try.outcome=='success' || steps.fourth-try.outcome=='success' }}; then
+             exit 0
+          else
+             exit 1
+          fi
