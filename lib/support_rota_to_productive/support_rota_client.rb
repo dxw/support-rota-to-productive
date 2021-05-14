@@ -1,6 +1,6 @@
 class SupportRotaClient
   def initialize
-    @api_base = "https://dxw-support-rota.herokuapp.com"
+    @api_base = ENV["SUPPORT_ROTA_API_URI"]
   end
 
   attr_reader :api_base
