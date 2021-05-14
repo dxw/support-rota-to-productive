@@ -10,32 +10,9 @@ module ServiceStubs
       .to_return(status: 200, body: "", headers: {})
   end
 
-  def stub_booking_create(employee:)
+  def stub_booking_create
     stub_request(:post, "https://api.productive.io/api/v2/bookings")
-      .with(
-        body: {
-          "data" => {
-            "type" => "bookings",
-            "relationships" => {
-              "person" => {
-                "data" => {
-                  "type" => "people",
-                  "id" => employee.productive_id
-                }
-              },
-              "service" => {
-                "data" => nil
-              }
-            },
-            "attributes" => {
-              "started_on" => "2021-03-01",
-              "ended_on" => "2021-03-01",
-              "approved" => true,
-              "time" => 420
-            }
-          }
-        }.to_json
-      ).to_return(status: 200, body: "", headers: {})
+      .to_return(status: 200, body: "", headers: {})
   end
 
   def stub_booking_delete(id)

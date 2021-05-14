@@ -35,9 +35,9 @@ and locate the relevant ID.
 
 This will do the following:
 
-- Delete all upcoming support rota bookings in Productive,
-- Fetch all support rota info from the API, importing them into Productive as a booking against the Support project
-  for the appropriate person.
+This will fetch all support project bookings from Productive and the Support Rota, deleting any that are
+present in Productive, but not the Support Rota, and creating any that are present in the Support Rota,
+but not Productive.
 
 ```bash
 bundle exec rake support_rota_to_productive:import:run

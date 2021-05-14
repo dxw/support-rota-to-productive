@@ -1,10 +1,20 @@
 module SupportRotaToProductive
   class SupportRotation
     include ActiveModel::Model
-    attr_accessor :date, :employee
+    attr_accessor :date, :employee, :productive_booking
+
+    def eql?(other)
+      employee.email == other.employee.email &&
+        date == other.date
+    end
+    alias_method :==, :eql?
+
+    def hash
+      (date.hash ^ employee.email.hash)
+    end
 
     class << self
-      def all
+      def from_support_rota
         result = []
         result << JSON.parse(client.get(developer_endpoint)) if ENV["IMPORT_DEV_IN_HOURS"].eql?("true")
         result << JSON.parse(client.get(ops_endpoint)) if ENV["IMPORT_OPS_IN_HOURS"].eql?("true")
@@ -12,6 +22,10 @@ module SupportRotaToProductive
         result.flatten.map do |support_day|
           new(values_for(support_day))
         end
+      end
+
+      def from_productive
+        Productive::Booking.where(project_id: SUPPORT_PROJECT_ID, after: Date.today).all.map(&:to_support_rotation)
       end
 
       private
