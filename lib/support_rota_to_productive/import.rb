@@ -15,7 +15,7 @@ module SupportRotaToProductive
       end.reduce(0) { |count| count + 1 }
 
       LOGGER.info("==========================================================")
-      LOGGER.info("Run complete!")
+      LOGGER.info("#{@dry_run ? "Dry run" : "Run"} complete!")
       LOGGER.info("#{added} item(s) added, #{deleted} item(s) deleted")
       LOGGER.info("==========================================================")
     end
