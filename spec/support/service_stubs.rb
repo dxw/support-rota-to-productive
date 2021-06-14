@@ -1,6 +1,7 @@
 module ServiceStubs
-  def stub_support_rota_service(type = "dev")
-    body = JSON.parse(File.read(File.join("spec", "fixtures", "support_rota", "#{type}.json"))).to_json
+  def stub_support_rota_service(type:, fixture_file_name:)
+    body_array = JSON.parse(File.read(File.join("spec", "fixtures", "support_rota", "#{fixture_file_name}.json"))).to_json
+
     stub_request(:get, "https://dxw-support-rota.herokuapp.com/v2/#{type}/rota.json")
       .to_return(status: 200, body: body, headers: {})
   end

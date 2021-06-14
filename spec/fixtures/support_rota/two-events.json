@@ -8,11 +8,11 @@
     }
   },
   {
-    "date": "2021-03-02",
+    "date": "2021-03-01",
     "role": "dev",
     "person": {
-      "name": "Josephine Developer",
-      "email": "josephine@dxw.com"
+      "name": "Joe Developer",
+      "email": "joe@dxw.com"
     }
   }
 ]
