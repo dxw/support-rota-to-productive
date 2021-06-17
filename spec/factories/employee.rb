@@ -8,10 +8,6 @@ FactoryBot.define do
 
     skip_create
 
-    after(:create) do |employee, evaluator|
-      create(:person, email: employee.email) if evaluator.in_productive?
-    end
-
     trait :not_in_productive do
       transient do
         in_productive? { false }

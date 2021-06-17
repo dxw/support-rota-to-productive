@@ -1,46 +1,46 @@
 require "spec_helper"
 
 RSpec.describe SupportRotaToProductive::SendToProductive do
-  let(:employee) { create(:employee, email: "foo@example.com") }
-  let(:support_rotation) { create(:support_rotation, employee: employee) }
   let(:dry_run) { false }
-  let!(:people_request) { stub_people }
-
-  subject { described_class.new(support_rotation, dry_run) }
 
   before do
     allow(SupportRotaToProductive::LOGGER).to receive(:info)
+    allow_any_instance_of(described_class)
+      .to receive(:employee_assigned_to_support_project?).and_return(true)
   end
 
   describe "#save" do
-    before do
-      allow(subject).to receive(:employee_assigned_to_support_project?).and_return(true)
-    end
-
     let!(:service_request) { stub_productive_service(SupportRotaToProductive::SUPPORT_SERVICE_ID) }
 
     context "when a person exists in Productive" do
-      let!(:project_assignment_request) {
-        stub_project_assignment_for_employee_and_project(employee.productive_id, SupportRotaToProductive::SUPPORT_PROJECT_ID)
-      }
+      let(:employee) { create(:employee, email: "foo@example.com") }
+      let(:person) { create(:person, email: employee.email) }
+      let(:support_rotation) { create(:support_rotation, employee: employee) }
       let!(:booking_request) { stub_booking_create }
 
+      before(:each) do
+        stub_people(people: [person])
+      end
+
       it "creates a booking in productive" do
-        subject.save
+        described_class.new(support_rotation, dry_run).save
 
         expect(booking_request).to have_been_requested
       end
 
       it "logs the creation of a booking" do
-        subject.save
+        described_class.new(support_rotation, dry_run).save
 
-        expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Creating support shift for #{employee.email} on #{support_rotation.date}")
+        expect(SupportRotaToProductive::LOGGER)
+          .to have_received(:info)
+          .with("Creating support shift for #{employee.email} on #{support_rotation.date}")
       end
 
       context "but they are not assigned to the support project" do
         let!(:project_assignment_request) { stub_project_assignment_create }
 
         it "assigns the employee to the support project" do
+          subject = described_class.new(support_rotation, dry_run)
           allow(subject).to receive(:employee_assigned_to_support_project?).and_return(false)
 
           subject.save
@@ -53,33 +53,38 @@ RSpec.describe SupportRotaToProductive::SendToProductive do
         let(:dry_run) { true }
 
         it "does not create a booking in productive" do
-          subject.save
+          described_class.new(support_rotation, dry_run).save
 
           expect(booking_request).to_not have_been_requested
         end
 
         it "logs the creation of a booking" do
-          subject.save
+          described_class.new(support_rotation, dry_run).save
 
-          expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Creating support shift for #{employee.email} on #{support_rotation.date}")
+          expect(SupportRotaToProductive::LOGGER)
+            .to have_received(:info)
+            .with("Creating support shift for #{employee.email} on #{support_rotation.date}")
         end
       end
     end
 
     context "when a person does not exist in Productive" do
-      let!(:employees) { create_list(:employee, 5) }
-      let(:employee) { create(:employee, :not_in_productive) }
-
+      let(:support_rotation) { create(:support_rotation, employee: employee_not_in_productive) }
+      let(:employee_not_in_productive) { create(:employee, :not_in_productive) }
       let!(:booking_request) { a_request(:post, "https://api.productive.io/api/v2/bookings") }
 
-      it "shows a log message" do
-        subject.save
+      before(:each) { stub_people(people: []) }
 
-        expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Cannot find an entry in Productive for #{employee.email}")
+      it "shows a log message" do
+        described_class.new(support_rotation, dry_run).save
+
+        expect(SupportRotaToProductive::LOGGER)
+          .to have_received(:info)
+          .with("Cannot find an entry in Productive for #{employee_not_in_productive.email}")
       end
 
       it "does not create a booking in productive" do
-        subject.save
+        described_class.new(support_rotation, dry_run).save
 
         expect(booking_request).to_not have_been_requested
       end
@@ -88,15 +93,17 @@ RSpec.describe SupportRotaToProductive::SendToProductive do
         let(:dry_run) { true }
 
         it "does not create a booking in productive" do
-          subject.save
+          described_class.new(support_rotation, dry_run).save
 
           expect(booking_request).to_not have_been_requested
         end
 
         it "logs the creation of a booking" do
-          subject.save
+          described_class.new(support_rotation, dry_run).save
 
-          expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Cannot find an entry in Productive for #{employee.email}")
+          expect(SupportRotaToProductive::LOGGER)
+            .to have_received(:info)
+            .with("Cannot find an entry in Productive for #{employee_not_in_productive.email}")
         end
       end
     end
