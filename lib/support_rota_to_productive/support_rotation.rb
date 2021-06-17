@@ -20,8 +20,9 @@ module SupportRotaToProductive
         result << JSON.parse(client.get(ops_endpoint)) if ENV["IMPORT_OPS_IN_HOURS"].eql?("true")
 
         result.flatten.map do |support_day|
+          next if Time.parse(support_day["date"]) < 1.day.ago
           new(values_for(support_day))
-        end
+        end.compact
       end
 
       def from_productive
