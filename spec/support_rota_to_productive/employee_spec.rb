@@ -1,21 +1,23 @@
 require "spec_helper"
 
 RSpec.describe SupportRotaToProductive::Employee do
-  let(:employee) { create(:employee, email: "foo@example.com") }
-
   describe ".new" do
-    subject { employee }
-
-    it { should be_a(SupportRotaToProductive::Employee) }
+    it "should return an Employee object" do
+      result = described_class.new
+      expect(result).to be_a(SupportRotaToProductive::Employee)
+    end
   end
 
   describe "#to_productive" do
-    subject { employee.to_productive }
+    it "returns a Productive person object" do
+      productive_employee = build(:employee, email: "foo@example.com")
+      support_rota_person = create(:person, email: "foo@example.com")
+      stub_people(people: [support_rota_person])
 
-    it "returns an employee's representation in productive" do
-      expect(subject).to be_a(Productive::Person)
+      result = productive_employee.to_productive
 
-      expect(subject.email).to eq("foo@example.com")
+      expect(result).to be_a(Productive::Person)
+      expect(result.email).to eq("foo@example.com")
     end
   end
 end

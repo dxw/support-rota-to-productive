@@ -123,8 +123,9 @@ RSpec.describe SupportRotaToProductive::Import do
   end
 
   def create_and_stub_person(email:)
-    employee = FactoryBot.create(:employee, email: email)
+    employee = create(:employee, email: email)
     person = create(:person, email: employee.email)
+    stub_people(people: [person])
     stub_project_assignment_for_employee_and_project(
       employee.productive_id, SupportRotaToProductive::SUPPORT_PROJECT_ID
     )

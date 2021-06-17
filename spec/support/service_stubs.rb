@@ -69,9 +69,27 @@ module ServiceStubs
       .to_return(status: 200, body: "", headers: {})
   end
 
-  def stub_people
+  def stub_people(people: [])
+    body = {"data" => [], "included" => []}
+
+    unless people.empty?
+      people.map do |person|
+        person_data = {id: "1", type: "people", attributes: {}}
+        person_data[:attributes] = person.attributes.as_json
+        person_data[:relationships] = {
+          relationships: {
+            organization: {data: {type: "organizations", id: 15071}},
+            company: {data: {type: "companies", id: "180872"}},
+            subsidiary: {data: {type: "subsidiaries", id: "14723"}}
+          }
+        }
+
+        body["data"] << person_data
+      end
+    end
+
     stub_request(:get, "https://api.productive.io/api/v2/people")
-      .to_return(status: 200, body: "", headers: {})
+      .to_return(status: 200, body: body.to_json, headers: {"Content-Type" => "application/json"})
   end
 end
 
