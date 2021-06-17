@@ -26,7 +26,7 @@ module SupportRotaToProductive
 
       def from_productive
         Productive::Booking
-          .where(project_id: SUPPORT_PROJECT_ID, after: date_of_earliest_support_event)
+          .where(project_id: SUPPORT_PROJECT_ID, after: Date.yesterday.iso8601)
           .all
           .map(&:to_support_rotation)
       end

@@ -2,29 +2,29 @@ require "spec_helper"
 
 RSpec.describe SupportRotaToProductive::SupportRotation do
   let(:employee) { SupportRotaToProductive::Employee.new(email: "foo@example.com") }
-  let(:support_rotation) { described_class.new(employee: employee, date: Date.today) }
-  let!(:support_rota_request_dev) { stub_support_rota_service("dev") }
-  let!(:support_rota_request_ops) { stub_support_rota_service("ops") }
+
+  after(:each) do
+    SupportRotaToProductive::SupportRotation.instance_variable_set(:@from_support_rota, nil)
+  end
 
   describe ".new" do
+    let(:support_rotation) { described_class.new(employee: employee, date: Date.today) }
     subject { support_rotation }
 
     it { should be_a(SupportRotaToProductive::SupportRotation) }
   end
 
   describe ".from_support_rota" do
-    before do
-      stub_support_rota_service("dev")
-      stub_support_rota_service("ops")
-    end
-
-    let(:support_rotations) { described_class.from_support_rota }
-
     it "returns support rotations" do
+      stub_support_rota_service(type: :dev, fixture_file_name: "dev")
+      stub_support_rota_service(type: :ops, fixture_file_name: "dev")
+
       created_support_rotations = create_list(:support_rotation, 4)
 
-      expect(support_rotations.count).to eq(created_support_rotations.count)
-      expect(support_rotations.first).to be_a(SupportRotaToProductive::SupportRotation)
+      result = described_class.from_support_rota
+
+      expect(result.count).to eq(created_support_rotations.count)
+      expect(result.first).to be_a(SupportRotaToProductive::SupportRotation)
     end
   end
 
@@ -32,9 +32,16 @@ RSpec.describe SupportRotaToProductive::SupportRotation do
     let(:support_rotations) { described_class.from_productive }
 
     it "returns bookings as support_rotations" do
-      created_support_rotations = create_list(:booking, 6)
+      created_support_rotation = create(:booking)
 
-      expect(support_rotations.count).to eq(created_support_rotations.count)
+      # Get Support Rota events
+      stub_support_rota_service(type: :dev, fixture_file_name: "no-events")
+      stub_support_rota_service(type: :ops, fixture_file_name: "no-events")
+
+      # Get Productive bookings
+      stub_productive_get_bookings(bookings: [created_support_rotation])
+
+      expect(support_rotations.count).to eq(1)
       expect(support_rotations.first).to be_a(SupportRotaToProductive::SupportRotation)
     end
   end

@@ -1,0 +1,10 @@
+[
+  {
+    "date": "2021-02-01",
+    "role": "dev",
+    "person": {
+      "name": "Tom Developer",
+      "email": "tom@dxw.com"
+    }
+  }
+]

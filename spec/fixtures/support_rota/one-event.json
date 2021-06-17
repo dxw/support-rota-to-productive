@@ -6,13 +6,5 @@
       "name": "Joe Developer",
       "email": "joe@dxw.com"
     }
-  },
-  {
-    "date": "2021-03-01",
-    "role": "dev",
-    "person": {
-      "name": "Joe Developer",
-      "email": "joe@dxw.com"
-    }
   }
 ]
