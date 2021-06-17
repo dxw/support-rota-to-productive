@@ -1,78 +1,140 @@
 require "spec_helper"
 
 RSpec.describe SupportRotaToProductive::Import do
-  let(:dry_run) { false }
-  subject { described_class.new(dry_run: dry_run) }
-
-  let!(:service_request) { stub_productive_service(SupportRotaToProductive::SUPPORT_SERVICE_ID) }
-  let!(:support_rota_request_dev) { stub_support_rota_service("dev") }
-  let!(:support_rota_request_ops) { stub_support_rota_service("ops") }
-  let!(:dev_employee) { FactoryBot.create(:employee, email: "joe@dxw.com") }
-  let!(:ops_employee) { FactoryBot.create(:employee, email: "petra@dxw.com") }
-
-  before do
-    stub_support_rota_service
+  before(:each) do
+    stub_productive_service(SupportRotaToProductive::SUPPORT_SERVICE_ID)
+    stub_employee_as_on_support
     allow(SupportRotaToProductive::LOGGER).to receive(:info)
-    allow_any_instance_of(SupportRotaToProductive::SendToProductive).to receive(:employee_assigned_to_support_project?).and_return(true)
+    Timecop.freeze(Date.new(2021, 3, 1))
   end
 
   describe "#run" do
-    let(:employee) { create(:employee) }
-    let(:extra_employee) { create(:employee) }
-    let(:person) { create(:person, email: employee.email) }
+    it "creates missing bookings" do
+      person = create_and_stub_person(email: "joe@dxw.com")
 
-    let(:booking_1) { create(:booking, person: person, started_on: Date.parse("2021-01-01"), ended_on: Date.parse("2021-01-10")) }
-    let(:booking_2) { create(:booking, person: person, started_on: Date.parse("2021-02-01"), ended_on: Date.parse("2021-02-10")) }
-    let(:booking_3) { create(:booking, person: person, started_on: Date.parse("2021-03-01"), ended_on: Date.parse("2021-03-10")) }
-    let(:booking_4) { create(:booking, person: person, started_on: Date.parse("2021-04-01"), ended_on: Date.parse("2021-04-10")) }
+      # Get Support Rota events
+      stub_support_rota_service(type: :dev, fixture_file_name: "one-event")
+      stub_support_rota_service(type: :ops, fixture_file_name: "one-event")
 
-    let(:extra_support_rotation) { create(:support_rotation, employee: extra_employee) }
+      # Get Productive bookings
+      stub_productive_get_bookings(bookings: [])
 
-    let!(:support_rotations_from_api) do
-      [
-        create(:support_rotation, date: booking_1.started_on, employee: employee),
-        create(:support_rotation, date: booking_2.started_on, employee: employee),
-        create(:support_rotation, date: booking_3.started_on, employee: employee),
-        extra_support_rotation
-      ]
-    end
+      create_request = stub_booking_create
 
-    let!(:create_stub) { stub_booking_create }
-    let!(:delete_stub) { stub_booking_delete(booking_4.id) }
-
-    before do
-      allow(SupportRotaToProductive::SupportRotation).to receive(:from_support_rota).and_return(support_rotations_from_api)
-    end
-
-    it "creates the missing booking and deletes the extra booking" do
       described_class.new.run
 
-      expect(create_stub).to have_been_requested
-      expect(delete_stub).to have_been_requested
+      expect(create_request).to have_been_requested.twice
+
+      expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Creating support shift for #{person.email} on 2021-03-01").twice
+      expect(SupportRotaToProductive::LOGGER)
+        .to have_received(:info).with("2 item(s) added, 0 item(s) deleted")
     end
 
-    it "adds log entries" do
+    it "deletes a booking that no longer exists in the rota" do
+      person = create_and_stub_person(email: "joe@dxw.com")
+
+      # Get Support Rota events
+      stub_support_rota_service(type: :dev, fixture_file_name: "no-events")
+      stub_support_rota_service(type: :ops, fixture_file_name: "no-events")
+
+      # Get Productive bookings
+      booking_that_no_longer_exists_in_the_rota = create(:booking, person: person)
+      stub_productive_get_bookings(bookings: [booking_that_no_longer_exists_in_the_rota])
+
+      delete = stub_booking_delete(booking_that_no_longer_exists_in_the_rota.id)
+
       described_class.new.run
 
-      expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Creating support shift for #{extra_support_rotation.employee.email} on #{extra_support_rotation.date}")
-      expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Deleting support shift for #{booking_4.person.email} on #{booking_4.started_on}")
-      expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("1 item(s) added, 1 item(s) deleted")
+      expect(delete).to have_been_requested
+      expect(SupportRotaToProductive::LOGGER)
+        .to have_received(:info).with("Deleting support shift for #{person.email} on #{booking_that_no_longer_exists_in_the_rota.started_on}")
+      expect(SupportRotaToProductive::LOGGER)
+        .to have_received(:info).with("0 item(s) added, 1 item(s) deleted")
+    end
+
+    context "when the support rota includes historic data (more than 1 day ago)" do
+      it "does not create a Productive booking" do
+        _person = create_and_stub_person(email: "tom@dxw.com")
+
+        # Get Support Rota events
+        stub_support_rota_service(type: :dev, fixture_file_name: "one-historic-event")
+        stub_support_rota_service(type: :ops, fixture_file_name: "no-events")
+
+        # Get Productive bookings
+        stub_productive_get_bookings(bookings: [])
+
+        create_request = stub_booking_create
+
+        described_class.new.run
+
+        expect(create_request).not_to have_been_requested.twice
+      end
     end
 
     context "when dry run is true" do
-      it "does not create the missing booking and delete the extra booking" do
+      it "does not create a missing booking" do
+        # Get Support Rota events
+        stub_support_rota_service(type: :dev, fixture_file_name: "no-events")
+        stub_support_rota_service(type: :ops, fixture_file_name: "no-events")
+
+        # Get Productive bookings
+        stub_productive_get_bookings(bookings: [])
+
+        create_request = stub_booking_create
+
         described_class.new(dry_run: true).run
 
-        expect(create_stub).to_not have_been_requested
-        expect(delete_stub).to_not have_been_requested
+        expect(create_request).to_not have_been_requested
+      end
+
+      it "does not delete a booking" do
+        # Get Support Rota events
+        stub_support_rota_service(type: :dev, fixture_file_name: "no-events")
+        stub_support_rota_service(type: :ops, fixture_file_name: "no-events")
+
+        # Get Productive bookings
+        booking = create(:booking)
+        stub_productive_get_bookings(bookings: [booking])
+
+        delete_request = stub_booking_delete(booking.id)
+
+        described_class.new(dry_run: true).run
+
+        expect(delete_request).to_not have_been_requested
       end
 
       it "adds log entries" do
+        person = create_and_stub_person(email: "joe@dxw.com")
+
+        # Get Support Rota events
+        stub_support_rota_service(type: :dev, fixture_file_name: "one-event")
+        stub_support_rota_service(type: :ops, fixture_file_name: "no-events")
+
+        # Get Productive bookings
+        booking_that_no_longer_exists_in_the_rota = create(:booking, person: person, started_on: Date.yesterday)
+        stub_productive_get_bookings(bookings: [booking_that_no_longer_exists_in_the_rota])
+
         described_class.new(dry_run: true).run
 
-        expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Creating support shift for #{extra_support_rotation.employee.email} on #{extra_support_rotation.date}")
-        expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Deleting support shift for #{booking_4.person.email} on #{booking_4.started_on}")
+        expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Creating support shift for #{person.email} on 2021-03-01")
+        expect(SupportRotaToProductive::LOGGER).to have_received(:info).with("Deleting support shift for #{person.email} on #{booking_that_no_longer_exists_in_the_rota.started_on}")
       end
     end
+  end
+
+  def create_and_stub_person(email:)
+    employee = FactoryBot.create(:employee, email: email)
+    person = create(:person, email: employee.email)
+    stub_project_assignment_for_employee_and_project(
+      employee.productive_id, SupportRotaToProductive::SUPPORT_PROJECT_ID
+    )
+
+    person
+  end
+
+  def stub_employee_as_on_support
+    allow_any_instance_of(SupportRotaToProductive::SendToProductive)
+      .to receive(:employee_assigned_to_support_project?)
+      .and_return(true)
   end
 end

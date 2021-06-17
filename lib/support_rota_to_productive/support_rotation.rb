@@ -25,7 +25,10 @@ module SupportRotaToProductive
       end
 
       def from_productive
-        Productive::Booking.where(project_id: SUPPORT_PROJECT_ID, after: Date.today).all.map(&:to_support_rotation)
+        Productive::Booking
+          .where(project_id: SUPPORT_PROJECT_ID, after: Date.yesterday.iso8601)
+          .all
+          .map(&:to_support_rotation)
       end
 
       private
@@ -33,7 +36,7 @@ module SupportRotaToProductive
       def values_for(support_day)
         email = support_day.dig("person", "email")
         values = {}
-        values[:date] = support_day.fetch("date")
+        values[:date] = Date.parse(support_day.fetch("date", nil))
         values[:employee] = Employee.new(email: email)
         values
       end

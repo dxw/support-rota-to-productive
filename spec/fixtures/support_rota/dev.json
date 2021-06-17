@@ -1,18 +1,18 @@
 [
   {
-    "date":"2021-03-01",
-    "role":"dev",
+    "date": "2021-03-01",
+    "role": "dev",
     "person": {
-      "name":"Joe Developer",
-      "email":"joe@dxw.com"
+      "name": "Joe Developer",
+      "email": "joe@dxw.com"
     }
   },
   {
-    "date":"2021-03-02",
-    "role":"dev",
+    "date": "2021-03-02",
+    "role": "dev",
     "person": {
-      "name":"Josephine Developer",
-      "email":"josephine@dxw.com"
+      "name": "Josephine Developer",
+      "email": "josephine@dxw.com"
     }
   }
 ]
