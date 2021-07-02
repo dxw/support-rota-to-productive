@@ -13,5 +13,16 @@ RSpec.describe Productive::Booking do
       expect(subject.employee.email).to eq(booking.person.email)
       expect(subject.productive_booking).to eq(booking)
     end
+
+    context "when the Productive employee has an email that is not all lower case" do
+      it "lowercases it when creating SupportRotaToProductive::SupportRotation for reliable comparisons" do
+        productive_person = create(:person, email: "foo@DXW.com")
+        booking = create(:booking, person: productive_person)
+
+        result = booking.to_support_rotation
+
+        expect(result.employee.email).to eq("foo@dxw.com")
+      end
+    end
   end
 end

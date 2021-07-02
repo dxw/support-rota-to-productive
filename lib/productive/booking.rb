@@ -11,7 +11,7 @@ module Productive
     private
 
     def employee
-      SupportRotaToProductive::Employee.new(email: person.email)
+      SupportRotaToProductive::Employee.new(email: person.email.downcase)
     end
   end
 end
