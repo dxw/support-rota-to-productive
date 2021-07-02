@@ -4,7 +4,9 @@ module SupportRotaToProductive
     attr_accessor :email
 
     def to_productive
-      @to_productive ||= self.class.all_productive_employees.find { |e| e.email.downcase == email.downcase }
+      @to_productive ||= self.class.all_productive_employees.find { |e|
+        e&.email&.downcase == email&.downcase
+      }
     end
 
     def productive_id

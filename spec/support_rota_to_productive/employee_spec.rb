@@ -43,5 +43,18 @@ RSpec.describe SupportRotaToProductive::Employee do
         expect(result).to be_a(Productive::Person)
       end
     end
+
+    context "when the email address is blank (as it's a placeholder user)" do
+      it "does not raise an error" do
+        placeholder_person = create(:person, email: nil)
+        support_person = create(:person, email: "someone_that_does_exist@dxw.com")
+        stub_people(people: [placeholder_person, support_person])
+
+        productive_employee = build(:employee, email: "someone_that_does_exist@dxw.com")
+        result = productive_employee.to_productive
+
+        expect(result).to be_a(Productive::Person)
+      end
+    end
   end
 end
