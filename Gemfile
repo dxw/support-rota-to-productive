@@ -1,6 +1,6 @@
 source "https://rubygems.org/"
 
-gem "productive", "~> 0.6.46"
+gem "productive", "~> 0.6.49"
 gem "dotenv"
 gem "rspec"
 gem "pry"
