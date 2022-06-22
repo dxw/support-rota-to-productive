@@ -10,7 +10,7 @@ module SupportRotaToProductive
     alias_method :==, :eql?
 
     def hash
-      (date.hash ^ employee.email.hash)
+      [date, employee.email].hash
     end
 
     class << self
